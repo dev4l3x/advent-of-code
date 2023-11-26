@@ -8,42 +8,47 @@ import (
 	"strings"
 )
 
-func sumElfTotal(elfBag string) int {
+func sumItemsOfElf(elfItems string) int {
 
-	var total int
-	calories := strings.Split(elfBag, "\n")
+	var totalKcal int
 
-	for _, calorie := range calories {
-		parsedCalories, _ := strconv.Atoi(calorie)
-		total += parsedCalories
+	items := strings.Split(elfItems, "\n")
+
+	for _, itemKcal := range items {
+		parsedCalories, _ := strconv.Atoi(itemKcal)
+		totalKcal += parsedCalories
 	}
 
-	return total
+	return totalKcal 
 }
 
-func main() {
-
+func getItemsByElf() []string {
 	data, err := os.ReadFile("input.txt")
 
 	if err != nil {
 		fmt.Printf("An error has ocurred: %v", err)
-		return
+		return []string{}
 	}
 
 	input := string(data)
 
-	elfs := strings.Split(input, "\n\n")
+	return strings.Split(input, "\n\n")
+}
 
-	elfsTotals := []int {sumElfTotal(elfs[0])}
+func getSumOfElfsWithMostKcal() int {
 
-	for _, elf := range elfs[1:] {
+	itemsByElf := getItemsByElf()	
+
+	totalKcalByElf := []int {sumItemsOfElf(itemsByElf[0])}
+
+	for _, items := range itemsByElf[1:] {
 		
-		elfTotal := sumElfTotal(elf)
+		elfTotalKcal := sumItemsOfElf(items)
 
-		for index, value := range elfsTotals {
+		for index, value := range totalKcalByElf{
 
-			if value < elfTotal {
-				elfsTotals = slices.Insert(elfsTotals, index, elfTotal)
+			if value < elfTotalKcal{
+				totalKcalByElf = slices.Insert(totalKcalByElf, index, elfTotalKcal)
 				break
 			}	
 
@@ -51,5 +56,11 @@ func main() {
 
 	}
 
-	fmt.Println(elfsTotals[0] + elfsTotals[1] + elfsTotals[2])
+	return totalKcalByElf[0] + totalKcalByElf[1] + totalKcalByElf[2];
+}
+
+func main() {
+
+	fmt.Println(getSumOfElfsWithMostKcal())
+
 }
