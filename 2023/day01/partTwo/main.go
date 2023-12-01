@@ -7,9 +7,8 @@ import (
 	"strings"
 )
 
-func main() {
-
-	file, error := os.ReadFile("input.txt")	
+func readInput(fileName string) []string {
+	file, error := os.ReadFile(fileName)	
 	if error != nil {
 		fmt.Printf("An error has ocurred while processing the input: %v", error)
 		os.Exit(1)
@@ -17,50 +16,51 @@ func main() {
 
 	input := string(file)
 
-	calibrations := strings.Split(input, "\n")
+	return strings.Split(input, "\n")
+}
 
-	var sum int
+func main() {
+	calibrations := readInput(os.Args[1])	
 
+	calibrationsSum := getCalibrations(calibrations)
+		
+	fmt.Printf("The sum of the calibration values is: %v\n", calibrationsSum)
+}
+
+func getCalibrations(calibrations []string) (sum int) {
 	for _, calibration := range calibrations {
 		calibrationValue := getCalibrationValue(calibration)
 		sum += calibrationValue
-	}	
-	fmt.Printf("The sum of the calibration values is: %v\n", sum)
+	}
+	return sum
 }
 
 func getCalibrationValue(calibration string) (calibrationValue int) {
 
 	calibrationValues := strings.Split(calibration, "")
 
-	/* numberPattern := regexp.MustCompile("(one|two|three|four|five|six|seven|eight|nine|[0-9])")
+	var numbersInCalibration []int
 
-	numbers := numberPattern.FindAllString(calibration, -1)
-	firstNumber, lastNumber = parseNumber(numbers[0]), parseNumber(numbers[len(numbers) - 1])
-	*/
-
-	var numbers []int
-
+	// A minor improvement would be to just take the first and the last items in the calibration to avoid parsing all the numbers
 	for i := 0; i < len(calibrationValues); i++ {
 		number, ok := parseNumber(calibrationValues[i])
 		if ok {
-			numbers = append(numbers, number)
+			numbersInCalibration = append(numbersInCalibration, number)
 			continue
 		}
 
-		for j := i + 2; j < i + 6 && j <= len(calibration); j++ {
-			number, ok := parseNumber(calibration[i:j])
+		const MAX_CHARS_TEXTUAL_NUMBER = 5
+		const MIN_CHARS_TEXTUAL_NUMBER = 3
+		for j := i + MIN_CHARS_TEXTUAL_NUMBER - 1; j <= i + MAX_CHARS_TEXTUAL_NUMBER && j < len(calibration); j++ {
+			number, ok := parseNumber(calibration[i:j+1])
 			if ok {
-				numbers = append(numbers, number)
+				numbersInCalibration = append(numbersInCalibration, number)
 				break
 			}
 		}
 	}
 
-
-	fmt.Println(numbers)
-	fmt.Println("Calibration:", calibration, "-", concatNumbers(numbers[0], numbers[len(numbers) - 1]), "-", numbers)
-
-	return concatNumbers(numbers[0], numbers[len(numbers) - 1])
+	return concatNumbers(numbersInCalibration[0], numbersInCalibration[len(numbersInCalibration) - 1])
 }
 
 func concatNumbers(first int, last int) (concatedNumbers int) {
