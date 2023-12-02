@@ -1,5 +1,6 @@
 # Day 2: Cube Conundrum
 
+## Part One
 You're launched high into the atmosphere! The apex of your trajectory just barely reaches the surface of a large island floating in the sky. You gently land in a fluffy pile of leaves. It's quite cold, but you don't see much snow. An Elf runs over to greet you.
 
 The Elf explains that you've arrived at Snow Island and apologizes for the lack of snow. He'll be happy to explain the situation, but it's a bit of a walk, so you have some time. They don't get many visitors up here; would you like to play a game in the meantime?
@@ -31,7 +32,7 @@ Determine which games would have been possible if the bag had been loaded with o
     <summary>Answer</summary>
     Your puzzle answer was 2278.
 </details>
---- Part Two ---
+## Part Two
 
 The Elf says they've stopped producing snow because they aren't getting any water! He isn't sure why the water stopped; however, he can show you how to get to the water source to check it out for yourself. It's just up ahead!
 
