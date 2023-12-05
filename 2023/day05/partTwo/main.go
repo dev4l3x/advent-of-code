@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -33,24 +34,15 @@ func GetLowestLocation(textAlmanac []string) int {
 	fmt.Println("Built seeds")
 	almanac := processAlmanac(textAlmanac[1:])	
 
-	var debug string
+	var lowestLocation = getLocationFromValue(seeds[0], almanac, 0)
 
-	var lowestLocation = getLocationFromValue(seeds[0], almanac, 0, &debug)
-
-	fmt.Println("Seed", seeds[0], ":", debug)
+	fmt.Println("Seeds:", seeds)
 
 	for _, seed := range seeds[1:] {
 
-		cachedLocation, ok := seedLocation[seed]
 		var location int
 
-		if ok {
-			location = cachedLocation
-		} else {
-			debug = ""
-			location = getLocationFromValue(seed, almanac, 0, &debug)
-			fmt.Println("Seed", seed, ":", debug)
-		}
+		location = getLocationFromValue(seed, almanac, 0)
 
 		if location < lowestLocation {
 			lowestLocation = location
@@ -60,81 +52,78 @@ func GetLowestLocation(textAlmanac []string) int {
 	return lowestLocation
 }
 
-func getLocationFromValue(sourceValue int, almanac [][][3]int, category int, debug *string) int {
-
-	*debug += " -> " + fmt.Sprint(sourceValue)
-
-	if (len(almanac) == category) {
-		return sourceValue
-	}
-
+func getLocationFromValue(seedRange[2]int, almanac [][][3]int, category int) int {
 
 	currentCategory := almanac[category]
 
-	for _, mapping := range currentCategory {
-		sourceStartRange := mapping[1]
-		rangeLength := mapping[2]
-		hasMapping := sourceStartRange <= sourceValue && sourceValue <= (sourceStartRange + rangeLength - 1)
-
-		if hasMapping {
-			destinationStartRange := mapping[0]
-			sourceValueForNextCategory := destinationStartRange + (sourceValue - sourceStartRange)
-			return getLocationFromValue(sourceValueForNextCategory, almanac, category + 1, debug)
+	if category == len(almanac) - 1 {
+		lastCategoryMappings := getMappingRangesInCategory(seedRange, currentCategory)
+		lowestLocation := math.MaxInt
+		for _, mapping := range lastCategoryMappings {
+			location := mapping[0]
+			if location < lowestLocation {
+				lowestLocation = location
+			}
 		}
+		return lowestLocation
 	}
 
-	return getLocationFromValue(sourceValue, almanac, category + 1, debug)
+	currentCategoryMappings := getMappingRangesInCategory(seedRange, currentCategory)
+	
+	lowestLocation := math.MaxInt
+	for _, mapping := range currentCategoryMappings {
+		location := getLocationFromValue(mapping, almanac, category + 1)
+		if location < lowestLocation {
+			lowestLocation = location
+		}
+	}
+	return lowestLocation
 }
 
-func getSeeds(seeds string) []int {
-	var parsedSeeds []int = make([]int, 0)
+func getMappingRangesInCategory(seedRange [2]int, category [][3]int) [][2]int {
+	newSeedRanges := [][2]int {}
+	remainingRanges := true
+	for _, mapping := range category {
+		startMappingSource := mapping[1]
+		endMappingSource := mapping[1] + mapping[2] - 1
+
+		if startMappingSource <= seedRange[0]  && seedRange[1] <= endMappingSource {
+			targetStartMapping := mapping[0] + (seedRange[0] - startMappingSource)
+			targetEndMapping := mapping[0] + (seedRange[1] - startMappingSource)
+			newSeedRanges = append(newSeedRanges, [2]int {targetStartMapping, targetEndMapping})
+			remainingRanges = false
+			break
+		} else if startMappingSource <= seedRange[0] && seedRange[0] <= endMappingSource && endMappingSource < seedRange[1]{
+			targetStartMapping := mapping[0] + (seedRange[0] - startMappingSource)
+			targetEndMapping := mapping[0] + mapping[2] - 1
+			newSeedRanges = append(newSeedRanges, [2]int {targetStartMapping, targetEndMapping})
+			seedRange[0] = endMappingSource + 1
+		} else if seedRange[0] < startMappingSource && seedRange[1] <= endMappingSource && seedRange[1] >= startMappingSource {
+			targetStartMapping := mapping[0]
+			targetEndMapping := mapping[0] + (seedRange[1] - startMappingSource)
+			newSeedRanges = append(newSeedRanges, [2]int {targetStartMapping, targetEndMapping})
+			seedRange[1] = startMappingSource - 1
+		} 
+	}
+	if remainingRanges {
+		newSeedRanges = append(newSeedRanges, seedRange)
+	}
+	return newSeedRanges
+}
+
+func getSeeds(seeds string) [][2]int {
 	textSeedsRanges := strings.Split(seeds, " ")[1:]
 	ranges := [][2]int{}
 	for i := 0 ; i < len(textSeedsRanges) ; i+=2 {
 		startSeed := parseNumber(textSeedsRanges[i])
 		seedRangeLength := parseNumber(textSeedsRanges[i+1])
 		endSeed := startSeed + seedRangeLength - 1
-		isInRange := false
-		for j := 0 ; i < len(ranges) && !isInRange ; j++ {
-			start := ranges[j][0]	
-			end := ranges[j][1]	
-
-			if start <= startSeed && endSeed <= end {
-				isInRange = true
-				continue
-			} else if startSeed <= start && end <= endSeed {
-				isInRange = true
-				ranges[i][0] = startSeed
-				ranges[i][1] = endSeed
-				continue
-			}
-
-			if end < endSeed {
-				isInRange = true
-				ranges[j][1] = endSeed
-			} 
-
-			if startSeed < start {
-				isInRange = true
-				ranges[j][0] = startSeed
-			}
-
-		}
-
-		if !isInRange {
-			ranges = append(ranges, [2]int{startSeed, endSeed})
-		}
+		ranges = append(ranges, [2]int {startSeed, endSeed})
 	}
 
 	fmt.Println(ranges)
 
-	for _, r := range ranges {
-		for i := r[0] ; i <= r[1] ; i++ {
-			parsedSeeds = append(parsedSeeds, i)
-		}
-	}
-
-	return parsedSeeds
+	return ranges
 }
 
 func processAlmanac(almanac []string) [][][3]int {
