@@ -57,6 +57,7 @@ func getLocationFromValue(seedRange[2]int, almanac [][][3]int, category int) int
 	currentCategory := almanac[category]
 
 	if category == len(almanac) - 1 {
+		// Locations category, then retrieve lowest mapping in ranges
 		lastCategoryMappings := getMappingRangesInCategory(seedRange, currentCategory)
 		lowestLocation := math.MaxInt
 		for _, mapping := range lastCategoryMappings {
@@ -70,6 +71,7 @@ func getLocationFromValue(seedRange[2]int, almanac [][][3]int, category int) int
 
 	currentCategoryMappings := getMappingRangesInCategory(seedRange, currentCategory)
 	
+	// For each range mapped with the category, ask the lowest location to the next category
 	lowestLocation := math.MaxInt
 	for _, mapping := range currentCategoryMappings {
 		location := getLocationFromValue(mapping, almanac, category + 1)
