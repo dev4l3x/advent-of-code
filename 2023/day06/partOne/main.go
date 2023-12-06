@@ -1,0 +1,61 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"strings"
+)
+
+func main() {
+	games := map[int]int {
+		51: 377,
+		69: 1171,
+		98: 1224,
+		78: 1505,
+	}
+
+	product := GetProductOfWaysToWinEachGame(games)
+
+	fmt.Println("The total product is:", product)
+}
+
+func readInput(fileName string) []string {
+	file, err := os.ReadFile(fileName)
+
+	if err != nil {
+		fmt.Println("An error has ocurred while reading input:", err)
+		os.Exit(1)
+	}
+
+	return strings.Split(string(file), "\n\n")
+}
+
+func GetProductOfWaysToWinEachGame(games map[int]int) int {
+
+	
+	product := 1
+
+	for time, currentRecord := range games {
+		number := getNumberOfWaysToWinGame(time, currentRecord)
+		product *= number
+	}
+
+	return product
+}
+
+func getNumberOfWaysToWinGame(time int, currentRecord int) int {
+	const INCREASING_SPEED = 1
+
+	var numberOfWays int
+
+	for holdTime := 1 ; holdTime < time ; holdTime++ {
+		totalSpeed := holdTime	
+		leftTime := time - holdTime
+		totalDistance := leftTime * totalSpeed
+		if currentRecord < totalDistance {
+			numberOfWays++
+		}
+	}
+	
+	return numberOfWays
+}
