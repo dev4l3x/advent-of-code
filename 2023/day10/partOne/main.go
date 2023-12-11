@@ -7,11 +7,6 @@ import (
 	"strings"
 )
 
-type Node struct {
-	value string
-	left, right *Node
-}
-
 func main() {
 	input := readInput(os.Args[1])
 	steps := GetStepsFromFarthestPoint(input)
@@ -29,13 +24,13 @@ func readInput(fileName string) string {
 	return string(file)
 }
 
-var pipes = map[string][2]int{
-	"|": {1, 0},
-	"-": {0, 1},
-	"L": {1, 1},
-	"J": {1, -1},
-	"7": {-1, -1},
-	"F": {-1, 1},
+var pipes = map[string]bool{
+	"|": true,
+	"-": true, 
+	"L": true,
+	"J": true,
+	"7": true,
+	"F": true,
 }
 
 var changeDirectionMappings = map[int]map[string]int {
