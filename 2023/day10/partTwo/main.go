@@ -91,8 +91,10 @@ func GetAreaFromMap(pipeMap string) int {
 
 	direction := getDirection(previousTile, currentTile)
 
-	pathPoints := map[int][]int {
-		startingIndexes[0]: {startingIndexes[1]},
+	pathPoints := map[int]map[int]bool {
+		startingIndexes[0]: {
+			startingIndexes[1]: true,
+		},
 	}
 
 	for !hasReachedEndOfLoop {
@@ -106,10 +108,10 @@ func GetAreaFromMap(pipeMap string) int {
 
 		_, existsMap := pathPoints[currentTile[0]]
 		if !existsMap {
-			pathPoints[currentTile[0]] = make([]int, 0) 
+			pathPoints[currentTile[0]] = make(map[int]bool) 
 		}
 
-		pathPoints[currentTile[0]] = append(pathPoints[currentTile[0]], currentTile[1])
+		pathPoints[currentTile[0]][currentTile[1]] = true
 
 		newDirection, ok := changeDirectionMappings[direction][currentTileValue]
 
@@ -139,13 +141,19 @@ func GetAreaFromMap(pipeMap string) int {
 	return getTilesInsideLoop(parsedPipeMap, pathPoints)
 }
 
-func getTilesInsideLoop(starMap [][]string, pathPoints map[int][]int) int {
+func getTilesInsideLoop(starMap [][]string, pathPoints map[int]map[int]bool) int {
 	
 	var tilesOutside int
 
 	for i, row := range starMap {
 
 		for j := range row {
+
+			_, isPathTile := pathPoints[i][j]
+
+			if isPathTile {
+				continue
+			}
 
 			isTileInside := isTileInsideLoop([2]int {i, j}, pathPoints, starMap)	
 			if isTileInside {
@@ -158,26 +166,23 @@ func getTilesInsideLoop(starMap [][]string, pathPoints map[int][]int) int {
 	return tilesOutside
 }
 
-func isTileInsideLoop(tileIndexes [2]int, pathPoints map[int][]int, starMap [][]string) bool {
-	pathRow, ok := pathPoints[tileIndexes[0]]
-
-	if !ok {
-		return false
-	}
+func isTileInsideLoop(tileIndexes [2]int, pathPoints map[int]map[int]bool, starMap [][]string) bool {
 
 	pathTilesAfterTile := 0
 
-	for _, pathTileIndex := range pathRow {
+	for i, j := tileIndexes[0], tileIndexes[1]; i < len(starMap) && j < len(starMap[i]); i, j = i + 1, j + 1 {
+		_, ok := pathPoints[i][j]
 
-		pathTile := starMap[tileIndexes[0]][pathTileIndex]
+		pathTile := starMap[i][j]
 
-		if pathTileIndex == tileIndexes[1] {
-			return false
-		} else if pathTileIndex > tileIndexes[1] && (pathTile == "|" || pathTile == "J" || pathTile == "L"){
+		if ok && (pathTile == "L" || pathTile == "7") {
+			pathTilesAfterTile+=2
+		} else if ok {
 			pathTilesAfterTile++
 		}
-
 	}
+
+	fmt.Println(starMap[tileIndexes[0]][tileIndexes[1]], pathTilesAfterTile)
 
 	return pathTilesAfterTile % 2 != 0
 }

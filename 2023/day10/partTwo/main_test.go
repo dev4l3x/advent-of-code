@@ -85,3 +85,24 @@ L7JLJL-JLJLJL--JLJ.L`
 		t.Fatalf("Expected %v but got %v", expectedArea, area)	
 	}
 }
+
+func TestInnerArea5(t *testing.T) {
+
+	pipesMap := `..........
+.S------7.
+.|F----7|.
+.||....||.
+.||....||.
+.|L-7F-J|.
+.|..||..|.
+.L--JL--J.
+..........`
+
+	const expectedArea = 4 
+
+	area := GetAreaFromMap(pipesMap)
+
+	if expectedArea != area {
+		t.Fatalf("Expected %v but got %v", expectedArea, area)	
+	}
+}
