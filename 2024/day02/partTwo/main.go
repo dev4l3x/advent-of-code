@@ -60,8 +60,7 @@ func main() {
 			} else {
 				fmt.Printf("\tLevels: %v\n", levels)
 				fmt.Printf("\tGenerating subreport with levels %v, %v\n", levels[:i], levels[i+1:])
-				subreport = append(subreport, levels[:i]...)
-				subreport = append(subreport, levels[i+1:]...)
+				subreport = append(levels[:i], levels[i+1:]...)
 			}
 
 
