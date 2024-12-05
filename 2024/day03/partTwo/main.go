@@ -33,8 +33,6 @@ func main() {
 	dre2 := regexp.MustCompile(`don't\(\)(.|\n)*`)
 	activatedExpressions = dre2.ReplaceAllString(activatedExpressions, "")
 
-	fmt.Printf("Activated expressions: %v\n", activatedExpressions)
-
 
 	// Calculate activated muls
 
