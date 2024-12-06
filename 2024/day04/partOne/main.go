@@ -8,6 +8,21 @@ import (
 	"strings"
 )
 
+var (
+	UP = [2]int {1, 0} 
+	DOWN = [2]int {-1, 0} 
+	LEFT = [2]int {0, -1}
+	RIGHT = [2]int {0, 1}
+	UPPER_LEFT_DIAGONAL = [2]int {-1, -1}
+	UPPER_RIGHT_DIAGONAL = [2]int {-1, 1}
+	DOWN_LEFT_DIAGONAL = [2]int {1, -1}
+	DOWN_RIGHT_DIAGONAL = [2]int {1, 1}
+)
+
+var directions [8][2]int = [8][2]int {
+	UP, DOWN, LEFT, RIGHT, UPPER_LEFT_DIAGONAL, UPPER_RIGHT_DIAGONAL, DOWN_LEFT_DIAGONAL, DOWN_RIGHT_DIAGONAL, 
+}
+
 func main() {
 
 	file, error := os.ReadFile("input.txt")	
@@ -45,95 +60,38 @@ func main() {
 
 func countXmasOcurrences(matrix [][]string, i int, j int) int {
 	
-	const xmasSize = 3 // XMAS
-	xmas := "XMAS" 
 	ocurrences := 0
 	
-	// Search for the word XMAS in the row with right direction
-	if j + xmasSize < len(matrix[i]) {
-		row := matrix[i]
-		word := row[j:j+xmasSize+1]
-		if strings.Join(word, "") == xmas {
-			ocurrences++
-		}
+	for _, direction := range directions {
+		ocurrences += countXmasOcurrencesInDirection(matrix, i, j, direction)
 	}
 
-	// Search for the word XMAS in the row with left direction
-	if j - xmasSize >= 0 {
-		row := matrix[i]
-		word := row[j-xmasSize:j+1]
-		if strings.Join(word, "") == "SAMX" {
-			ocurrences++
-		}
-	}
-
-	// Search for the word XMAS in the column with down direction
-	if i + xmasSize < len(matrix) {
-		column := make([]string, 0)
-		for k := i; k <= i + xmasSize; k++ {
-			column = append(column, matrix[k][j])
-		}
-		if strings.Join(column, "") == xmas {
-			ocurrences++
-		}
-	}
-
-	// Search for the word XMAS in the column with up direction
-	if i - xmasSize >= 0 {
-		column := make([]string, 0)
-		for k := 0; k <= xmasSize; k++ {
-			column = append(column, matrix[i-k][j])
-		}
-		if strings.Join(column, "") == xmas {
-			ocurrences++
-		}
-	}
-
-	// Search for the word XMAS in the diagonal with up direction
-	if i - xmasSize >= 0 && j - xmasSize >= 0 {
-		diagonal := make([]string, 0)
-		for k := 0; k <= xmasSize; k++ {
-			diagonal = append(diagonal, matrix[i-k][j-k])
-		}
-		if strings.Join(diagonal, "") == xmas {
-			ocurrences++
-		}
-	}
-
-	// Search for the word XMAS in the diagonal with down direction
-	if i + xmasSize < len(matrix) && j + xmasSize < len(matrix[i]) {
-		diagonal := make([]string, 0)
-		for k := 0; k <= xmasSize; k++ {
-			diagonal = append(diagonal, matrix[i+k][j+k])
-		}
-		if strings.Join(diagonal, "") == xmas {
-			ocurrences++
-		}
-	}
-
-	// Search for the word XMAS in the diagonal with up direction
-	if i - xmasSize >= 0 && j + xmasSize < len(matrix[i]) {
-		diagonal := make([]string, 0)
-		for k := 0; k <= xmasSize; k++ {
-			diagonal = append(diagonal, matrix[i-k][j+k])
-		}
-		if strings.Join(diagonal, "") == xmas {
-			ocurrences++
-		}
-	}
-
-	// Search for the word XMAS in the diagonal with down direction
-	if i + xmasSize < len(matrix) && j - xmasSize >= 0 {
-		diagonal := make([]string, 0)
-		for k := 0; k <= xmasSize; k++ {
-			diagonal = append(diagonal, matrix[i+k][j-k])
-		}
-		if strings.Join(diagonal, "") == xmas {
-			ocurrences++
-		}
-	}
 
 	return ocurrences
+}
+
+func countXmasOcurrencesInDirection(matrix [][]string, i int, j int, direction [2]int) int {
+
+	const xmasSize = 4
+
+	if i + (xmasSize - 1) * direction[0] < 0 && i + (xmasSize - 1) * direction[0] >= len(matrix) {
+		return 0
+	} else if j 
+	
+	word := make([]string, 0)
+
+	for k := 0 ; k < xmasSize ; k++ {
+		letter := matrix[i + k * direction[0]][j + k * direction[1]]
+		word = append(word, letter)
+	} 
+
+	joinedWord := strings.Join(word, "")
+
+	if joinedWord == "XMAS" {
+		return 1
+	}
+
+	return 0
 }
 
 func parseNumber(number string) int {
